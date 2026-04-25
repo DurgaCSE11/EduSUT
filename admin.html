@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +20,7 @@
     </script>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body class="text-slate-300 font-sans h-screen flex items-center justify-center p-6">
     <div class="app-bg"></div>
     <div class="app-overlay"></div>
@@ -30,15 +32,18 @@
     </div>
 
     <!-- Access Denied / Login View -->
-    <div id="admin-login-view" class="hidden w-full max-w-md bg-[#151b2b] rounded-3xl p-10 border border-white/5 text-center shadow-2xl">
+    <div id="admin-login-view"
+        class="hidden w-full max-w-md bg-[#151b2b] rounded-3xl p-10 border border-white/5 text-center shadow-2xl">
         <div class="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
             <i class="fa-solid fa-shield-halved text-4xl text-primary"></i>
         </div>
         <h1 class="text-3xl font-bold text-white mb-2">Moderator Login</h1>
         <p class="text-slate-400 mb-10">Whitelisted access only</p>
 
-        <button id="btn-admin-google" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-6 h-6" alt="Google">
+        <button id="btn-admin-google"
+            class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-lg">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" class="w-6 h-6"
+                alt="Google">
             Sign in with Google
         </button>
 
@@ -54,7 +59,8 @@
                 <h1 class="text-3xl font-bold text-white">Admin Dashboard</h1>
                 <p class="text-slate-400">Manage PYQs and Study Materials</p>
             </div>
-            <button onclick="window.location.href='index.html'" class="bg-white/5 hover:bg-white/10 text-white px-6 py-2.5 rounded-xl transition-all">
+            <button onclick="window.location.href='index.html'"
+                class="bg-white/5 hover:bg-white/10 text-white px-6 py-2.5 rounded-xl transition-all">
                 Exit to Site
             </button>
         </div>
@@ -64,13 +70,17 @@
                 <i class="fa-solid fa-file-pdf text-4xl text-primary mb-6"></i>
                 <h2 class="text-xl font-bold text-white mb-2">Upload Materials</h2>
                 <p class="text-slate-400 mb-6 text-sm">Add new syllabus or study notes for any subject.</p>
-                <button onclick="window.location.href='materials.html'" class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-bold transition-all">Start Upload</button>
+                <button onclick="window.location.href='materials.html'"
+                    class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-bold transition-all">Start
+                    Upload</button>
             </div>
             <div class="bg-[#151b2b] p-8 rounded-3xl border border-white/5">
                 <i class="fa-solid fa-graduation-cap text-4xl text-emerald-400 mb-6"></i>
                 <h2 class="text-xl font-bold text-white mb-2">Manage PYQs</h2>
                 <p class="text-slate-400 mb-6 text-sm">Update the previous year questions repository.</p>
-                <button onclick="window.location.href='pyq.html'" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition-all">Open PYQ Manager</button>
+                <button onclick="window.location.href='pyq.html'"
+                    class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition-all">Open
+                    PYQ Manager</button>
             </div>
         </div>
     </div>
@@ -118,6 +128,8 @@
             signInWithRedirect(auth, provider);
         });
     </script>
-<script src="update_layout.js" type="module"></script>
+    <script src="update_layout.js" type="module"></script>
+    <script src="footer.js"></script>
 </body>
+
 </html>

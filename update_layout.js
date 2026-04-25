@@ -6,7 +6,7 @@ function injectLayout() {
     const style = document.createElement('style');
     style.textContent = `
         body {
-            background: linear-gradient(rgba(15, 20, 35, 0.88), rgba(15, 20, 35, 0.88)), url('background.jpeg');
+            background: linear-gradient(rgba(15, 20, 35, 0.88), rgba(15, 20, 35, 0.88)), url('background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;

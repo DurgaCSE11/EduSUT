@@ -5,20 +5,29 @@ function injectLayout() {
     // Add custom glassmorphism styles
     const style = document.createElement('style');
     style.textContent = `
+        html, body { 
+            background-color: #0a0e17 !important; 
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh;
+        }
         body {
-            background: linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.7)), url('background.jpg');
+            background: linear-gradient(rgba(10, 14, 23, 0.8), rgba(10, 14, 23, 0.8)), url('background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            background-color: #0f1423;
+            background-repeat: no-repeat;
         }
-        .bg-sidebar { background: rgba(8, 12, 22, 0.4) !important; backdrop-filter: blur(20px); }
+        .bg-sidebar { background: rgba(8, 12, 22, 0.6) !important; backdrop-filter: blur(20px); }
         .bg-mainBg { background: transparent !important; }
         .bg-cardBg, .glass-panel, .bg-[#151b2b] { 
             background: rgba(255, 255, 255, 0.03) !important; 
             backdrop-filter: blur(15px); 
-            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            border: 1px solid rgba(255, 255, 255, 0.08) !important; 
         }
+        /* Fix for white text on light backgrounds */
+        .text-slate-300, .text-slate-400 { color: rgba(255, 255, 255, 0.7) !important; }
+        h1, h2, h3, .text-white { color: #ffffff !important; }
     `;
     document.head.appendChild(style);
 

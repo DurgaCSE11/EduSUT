@@ -12,7 +12,7 @@ function injectLayout() {
             min-height: 100vh;
         }
         body {
-            background: linear-gradient(rgba(10, 14, 23, 0.8), rgba(10, 14, 23, 0.8)), url('background.jpg');
+            background: linear-gradient(rgba(10, 14, 23, 0.8), rgba(10, 14, 23, 0.8)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;

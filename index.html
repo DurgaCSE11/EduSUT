@@ -49,6 +49,23 @@
             background: #475569;
         }
     </style>
+    <style>
+    body {
+        background: linear-gradient(rgba(10, 14, 23, 0.8), rgba(10, 14, 23, 0.8)), url('background.jpg') !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+        background-color: #0a0e17 !important;
+    }
+    .bg-sidebar { background: rgba(8, 12, 22, 0.6) !important; backdrop-filter: blur(20px) !important; }
+    .bg-mainBg { background: transparent !important; }
+    .bg-cardBg, .glass-panel, .bg-[#151b2b] { 
+        background: rgba(255, 255, 255, 0.03) !important; 
+        backdrop-filter: blur(15px) !important; 
+        border: 1px solid rgba(255, 255, 255, 0.08) !important; 
+    }
+</style>
+
 </head>
 
 <body class="bg-mainBg text-slate-300 font-sans h-screen overflow-hidden flex flex-col md:flex-row selection:bg-primary selection:text-white">

@@ -28,7 +28,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// IMPORTANT: This is the function the error is complaining about!
+// Function to check if a user is an admin (whitelisted)
 async function checkIsAdmin(email) {
     if (!email) return false;
     try {

@@ -18,15 +18,7 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f1423; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .subject-card { background: #151b2b; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
-        .subject-card:hover { transform: translateY(-5px); border-color: #6366f1; box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.2); }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-mainBg text-slate-300 font-sans h-screen overflow-hidden flex flex-col md:flex-row selection:bg-primary selection:text-white">
 
@@ -185,7 +177,7 @@
 
     
     <script type="module">
-        import { auth, onAuthStateChanged, checkIsAdmin, signOut } from "./js/auth.js";
+        import { auth, onAuthStateChanged, checkIsAdmin, signOut } from "./auth.js";
         
         onAuthStateChanged(auth, async (user) => {
             const adminLinks = document.querySelectorAll('#nav-admin-link');
@@ -223,6 +215,6 @@
         };
     </script>
     
-    <script src="js/app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

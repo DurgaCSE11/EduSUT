@@ -44,7 +44,7 @@ function generateNavLinks(currentFile, isMobile = false) {
 
 const authLogicScript = `
     <script type="module">
-        import { auth, onAuthStateChanged, checkIsAdmin, signOut } from "./js/auth.js";
+        import { auth, onAuthStateChanged, checkIsAdmin, signOut } from "./auth.js";
         
         onAuthStateChanged(auth, async (user) => {
             const adminLinks = document.querySelectorAll('#nav-admin-link');
@@ -119,14 +119,9 @@ for (const file of htmlFiles) {
     
     // For index.html
     if (file === 'index.html') {
-        // Strip existing sidebars and re-inject to avoid duplicates
         content = content.replace(/<body[^>]*>([\s\S]*?)<\/body>/i, (match, bodyContent) => {
-            // Remove any existing sidebar or header from bodyContent to clean up
             let cleanBody = bodyContent.replace(/<div class="md:hidden flex items-center justify-between p-4 bg-sidebar[\s\S]*?<\/div>\s*<div id="mobile-sidebar"[\s\S]*?<\/div>/i, '');
             cleanBody = cleanBody.replace(/<aside[\s\S]*?<\/aside>/i, '');
-            
-            // Extract the actual main content (anything that's not a sidebar/header)
-            // In index.html, it's usually inside <main>
             let mainMatch = cleanBody.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
             let mainContent = mainMatch ? mainMatch[0] : cleanBody;
 
@@ -160,7 +155,7 @@ for (const file of htmlFiles) {
 
     ${mainContent}
     ${authLogicScript}
-    <script src="js/app.js"></script>
+    <script src="app.js"></script>
 </body>`;
         });
 
@@ -168,7 +163,7 @@ for (const file of htmlFiles) {
         continue;
     }
 
-    // Process other files using the general template
+    // Process other files
     let extractedContent = "";
     let sectionMatch = content.match(/<section[^>]*class="[^"]*page-section[^"]*"[^>]*>([\s\S]*?)<\/section>/);
     if (sectionMatch) {
@@ -187,11 +182,13 @@ for (const file of htmlFiles) {
 
     let extraScripts = "";
     if (file === 'materials.html') {
-        extraScripts = `<script src="js/materials-logic.js"></script>`;
+        extraScripts = `<script src="materials-logic.js"></script>`;
     } else if (file === 'ai.html') {
-        extraScripts = `<script src="js/ai-analyzer.js"></script>`;
-    } else if (file === 'login.html' || file === 'signup.html') {
-        extraScripts = `<script type="module" src="js/login-logic.js"></script>`;
+        extraScripts = `<script src="ai-analyzer.js"></script>`;
+    } else if (file === 'login.html') {
+        extraScripts = `<script type="module" src="login-logic.js"></script>`;
+    } else if (file === 'signup.html') {
+        extraScripts = `<script type="module" src="signup-logic.js"></script>`;
     }
 
     const newTemplate = `<!DOCTYPE html>
@@ -214,15 +211,7 @@ for (const file of htmlFiles) {
             }
         }
     </script>
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f1423; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .subject-card { background: #151b2b; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
-        .subject-card:hover { transform: translateY(-5px); border-color: #6366f1; box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.2); }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-mainBg text-slate-300 font-sans h-screen overflow-hidden flex flex-col md:flex-row selection:bg-primary selection:text-white">
 
@@ -259,7 +248,7 @@ for (const file of htmlFiles) {
 
     ${authLogicScript}
     ${extraScripts}
-    <script src="js/app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>`;
 

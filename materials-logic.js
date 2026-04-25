@@ -1,73 +1,96 @@
-const firstYearSubjects = ["BEE", "PHYSICS", "CDS", "BMP", "ETW", "MATH-I", "MATH-II", "CHEM", "BE", "EM", "BCE", "UHV", "CDS LAB", "PHYSICS LAB", "WDM LAB", "BEE LAB", "BE LAB", "CERW LAB", "CHEM LAB", "EGD LAB"];
+import { db } from './auth.js';
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-function handleCourseChange() {
+window.handleCourseChange = () => {
     const course = document.getElementById('course-select').value;
     const yearSelect = document.getElementById('year-select');
     yearSelect.innerHTML = '<option value="">Choose Year</option>';
     
-    if (course === 'BTECH') {
-        for (let i = 1; i <= 4; i++) {
-            yearSelect.innerHTML += `<option value="${i}">${i}${getOrdinal(i)} Year</option>`;
-        }
-    } else if (course === 'BARCH') {
-        for (let i = 1; i <= 5; i++) {
-            yearSelect.innerHTML += `<option value="${i}">${i}${getOrdinal(i)} Year</option>`;
+    if (course) {
+        const years = course === 'BTECH' ? 4 : 5;
+        for (let i = 1; i <= years; i++) {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${i}${i==1?'st':i==2?'nd':i==3?'rd':'th'} Year`;
+            yearSelect.appendChild(opt);
         }
     }
-    renderSubjects();
-}
+};
 
-function handleYearChange() {
-    renderSubjects();
-}
+window.handleYearChange = () => {
+    // Just a trigger for potential UI changes
+};
 
-function renderSubjects() {
+window.renderSubjects = async () => {
     const course = document.getElementById('course-select').value;
     const year = document.getElementById('year-select').value;
     const branch = document.getElementById('branch-select').value;
     const container = document.getElementById('subjects-container');
 
-    if (!course || !year || !branch) {
-        container.innerHTML = `
-            <div class="col-span-full py-20 text-center text-slate-500">
-                <i class="fa-solid fa-arrow-up text-4xl mb-4 block"></i>
-                <p class="text-xl">Select your Course, Year, and Branch to see subjects.</p>
-            </div>`;
-        return;
-    }
+    if (!course || !year || !branch) return;
 
-    if (year === '1') {
-        container.innerHTML = firstYearSubjects.map(sub => `
-            <div onclick="openSubject('${sub}')" class="subject-card p-6 rounded-2xl cursor-pointer">
-                <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-xl mb-4">
-                    <i class="fa-solid fa-book"></i>
+    container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500"><i class="fa-solid fa-spinner fa-spin text-4xl mb-4 block"></i><p>Loading subjects...</p></div>';
+
+    try {
+        const q = query(
+            collection(db, "materials"),
+            where("course", "==", course),
+            where("year", "==", year),
+            where("branch", "==", branch)
+        );
+
+        const querySnapshot = await getDocs(q);
+        container.innerHTML = '';
+
+        if (querySnapshot.empty) {
+            container.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500"><p class="text-xl">No subjects or materials uploaded for this selection yet.</p></div>';
+            return;
+        }
+
+        // Group by subject
+        const subjects = {};
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (!subjects[data.subject]) subjects[data.subject] = [];
+            subjects[data.subject].push({ id: doc.id, ...data });
+        });
+
+        Object.keys(subjects).forEach(subjectName => {
+            const subjectCard = document.createElement('div');
+            subjectCard.className = 'bg-cardBg p-6 rounded-3xl border border-white/5 hover:border-primary/30 transition-all group';
+            
+            let linksHtml = '';
+            subjects[subjectName].forEach(item => {
+                const icon = item.type === 'syllabus' ? 'fa-scroll' : 'fa-file-lines';
+                const label = item.type === 'syllabus' ? 'Syllabus' : 'Notes';
+                // Handle both Instant (fileData) and Storage (fileUrl)
+                const downloadLink = item.fileData || item.fileUrl;
+                
+                linksHtml += `
+                    <a href="${downloadLink}" download="${item.fileName}" class="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-primary/10 hover:text-primary transition-all mb-2 text-sm">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid ${icon}"></i>
+                            ${label}
+                        </span>
+                        <i class="fa-solid fa-download text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                    </a>
+                `;
+            });
+
+            subjectCard.innerHTML = `
+                <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-book-open text-primary text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white mb-1">${sub}</h3>
-                <p class="text-xs text-slate-500 uppercase tracking-wider">1st Year • All Branches</p>
-            </div>
-        `).join('');
-    } else {
-        container.innerHTML = `
-            <div class="col-span-full py-20 text-center text-slate-500">
-                <i class="fa-solid fa-hourglass-half text-4xl mb-4 block"></i>
-                <p class="text-xl">Materials for ${year}${getOrdinal(year)} Year ${branch} are coming soon.</p>
-            </div>`;
+                <h3 class="text-lg font-bold text-white mb-4">${subjectName}</h3>
+                <div class="space-y-1">
+                    ${linksHtml}
+                </div>
+            `;
+            container.appendChild(subjectCard);
+        });
+
+    } catch (error) {
+        console.error("Error fetching subjects:", error);
+        container.innerHTML = `<p class="text-red-400 text-center col-span-full">Error loading subjects: ${error.message}</p>`;
     }
-}
-
-function openSubject(subject) {
-    window.location.href = `subject-detail.html?subject=${encodeURIComponent(subject)}`;
-}
-
-function getOrdinal(n) {
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return s[(v - 20) % 10] || s[v] || s[0];
-}
-
-// Initialize if elements exist
-window.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('course-select')) {
-        // Any init logic
-    }
-});
+};

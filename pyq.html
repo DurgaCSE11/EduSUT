@@ -65,7 +65,7 @@
                     </div>
                     <div class="overflow-hidden">
                         <p id="user-name-display" class="text-sm font-bold text-white truncate">Student</p>
-                        <p class="text-[10px] text-slate-500 truncate">VSSUT Portal</p>
+                        <p id="user-role-display" class="text-[10px] text-slate-500 truncate">VSSUT Portal</p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-red-500/10 hover:text-red-400 text-slate-400 py-2.5 rounded-xl text-sm font-medium transition-all">
@@ -113,7 +113,7 @@
                     </div>
                     <div class="overflow-hidden">
                         <p id="user-name-display" class="text-sm font-bold text-white truncate">Student</p>
-                        <p class="text-[10px] text-slate-500 truncate">VSSUT Portal</p>
+                        <p id="user-role-display" class="text-[10px] text-slate-500 truncate">VSSUT Portal</p>
                     </div>
                 </div>
                 <button onclick="handleLogout()" class="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-red-500/10 hover:text-red-400 text-slate-400 py-2.5 rounded-xl text-sm font-medium transition-all">
@@ -200,7 +200,9 @@
                 guestLinks.forEach(el => el.classList.add('hidden'));
                 
                 const userNameEl = document.getElementById('user-name-display');
+                const userRoleEl = document.getElementById('user-role-display');
                 if (userNameEl) userNameEl.textContent = user.displayName || user.email.split('@')[0];
+                if (userRoleEl) userRoleEl.textContent = isAdmin ? 'Moderator' : 'VSSUT Student';
             } else {
                 adminLinks.forEach(link => link.classList.add('hidden'));
                 adminOnlyElements.forEach(el => el.classList.add('hidden'));

@@ -1,0 +1,155 @@
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Base styling */
+body {
+    background-color: #09090b;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: rgba(17, 19, 28, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.glass-sidebar {
+    background: linear-gradient(180deg, rgba(14, 16, 24, 0.85) 0%, rgba(10, 11, 16, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.glass-card {
+    background: rgba(23, 25, 35, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(30, 33, 45, 0.7);
+}
+
+/* Search input glass */
+.glass-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    color: white;
+}
+.glass-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+.glass-input:focus {
+    outline: none;
+    border-color: rgba(99, 102, 241, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Sidebar navigation links */
+.nav-item {
+    color: #94a3b8;
+    transition: all 0.2s ease;
+    border-radius: 0.75rem;
+}
+.nav-item:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+.nav-item.active {
+    background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+/* Gradients for icons and accents */
+.bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+.bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.bg-gradient-green { background: linear-gradient(135deg, #10b981, #047857); }
+.bg-gradient-orange { background: linear-gradient(135deg, #f59e0b, #b45309); }
+
+.text-gradient {
+    background: linear-gradient(to right, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Progress circle */
+.progress-circle {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#4f46e5 72%, rgba(255,255,255,0.05) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.progress-circle::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #13151f; /* Matches panel background roughly */
+}
+.progress-circle-inner {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+}
+
+/* Background setup */
+.app-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background-image: url('../vssut.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+.app-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(to right, rgba(5, 7, 12, 0.95) 0%, rgba(10, 14, 23, 0.8) 50%, rgba(15, 20, 30, 0.85) 100%);
+}
+
+/* Notification Badge */
+.badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}

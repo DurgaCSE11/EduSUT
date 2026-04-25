@@ -6,23 +6,22 @@ function injectLayout() {
     const style = document.createElement('style');
     style.textContent = `
         body {
-            background: linear-gradient(rgba(15, 20, 35, 0.88), rgba(15, 20, 35, 0.88)), url('background.jpg');
+            background: linear-gradient(rgba(10, 15, 30, 0.7), rgba(10, 15, 30, 0.7)), url('background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-color: #0f1423;
         }
-        .bg-sidebar { background: rgba(8, 12, 22, 0.8) !important; backdrop-filter: blur(16px); }
+        .bg-sidebar { background: rgba(8, 12, 22, 0.4) !important; backdrop-filter: blur(20px); }
         .bg-mainBg { background: transparent !important; }
         .bg-cardBg, .glass-panel, .bg-[#151b2b] { 
-            background: rgba(21, 27, 43, 0.6) !important; 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.05) !important; 
+            background: rgba(255, 255, 255, 0.03) !important; 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.1) !important; 
         }
     `;
     document.head.appendChild(style);
 
-    // Sidebar and Auth Logic
     onAuthStateChanged(auth, async (user) => {
         const adminLinks = document.querySelectorAll('#nav-admin-link');
         const adminOnlyElements = document.querySelectorAll('.admin-only');
@@ -67,7 +66,6 @@ function injectLayout() {
     };
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', injectLayout);
 } else {

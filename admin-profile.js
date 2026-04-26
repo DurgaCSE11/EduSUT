@@ -43,7 +43,7 @@ async function loadAdminProfile() {
             .from('admin_profiles')
             .select('*')
             .eq('email', currentAdminEmail)
-            .single();
+            .maybeSingle();
         
         if (data) {
             profileName.value = data.name || "";

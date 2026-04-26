@@ -12,7 +12,7 @@ async function checkIsAdmin(email) {
             .from('whitelisted_admins')
             .select('email')
             .eq('email', email)
-            .single();
+            .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
             console.error("EduSUT Auth: Error checking admin status:", error);

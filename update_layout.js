@@ -2,6 +2,7 @@
 import { auth, onAuthStateChanged, checkIsAdmin, signOut } from "./auth.js";
 
 function injectLayout() {
+    console.log("EduSUT Layout: Initializing...");
     // Add custom glassmorphism styles
     const style = document.createElement('style');
     style.textContent = `
@@ -23,10 +24,12 @@ function injectLayout() {
     document.head.appendChild(style);
 
     // Hide auth-dependent elements immediately to prevent flicker
+    console.log("EduSUT Layout: Hiding auth elements...");
     document.querySelectorAll('.guest-only, .user-profile-section, .admin-only, #nav-admin-link').forEach(el => el.classList.add('hidden'));
 
     // Sidebar and Auth Logic
     onAuthStateChanged((user) => {
+        console.log("EduSUT Layout: Received auth user:", user?.email || "No user");
         const adminLinks = document.querySelectorAll('#nav-admin-link');
         const adminOnlyElements = document.querySelectorAll('.admin-only');
         const userProfile = document.querySelectorAll('.user-profile-section');

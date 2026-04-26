@@ -84,10 +84,10 @@
                     </p>
                     
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSc8STi9U5uSIR-eV7A6WP8j7s9GiXjqpwL8nWKtW0xwbTowKA/viewform?usp=header" class="flex items-center gap-3 bg-rose-500 hover:bg-rose-600 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-rose-500/20">
+                        <a href="#" class="flex items-center gap-3 bg-rose-500 hover:bg-rose-600 text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-rose-500/20">
                             <i class="fa-solid fa-file-signature"></i> Submit Doubt Form
                         </a>
-                        <a href="https://chat.whatsapp.com/LyHGkVRLrkQKYabD4ugViR?mode=gi_t" class="flex items-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-green-500/20">
+                        <a href="#" class="flex items-center gap-3 bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-4 rounded-2xl font-bold transition-all shadow-lg shadow-green-500/20">
                             <i class="fa-brands fa-whatsapp text-xl"></i> Join WhatsApp Group
                         </a>
                     </div>
@@ -123,17 +123,20 @@
     <script src="update_layout.js" type="module"></script>
     <script src="js/footer.js"></script>
     <script type="module">
-        import { db, doc, getDoc } from "./auth.js";
-        import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { supabase } from "./auth.js";
 
         const grid = document.getElementById('doubts-grid');
 
         async function loadVideos() {
             try {
-                const q = query(collection(db, "videos"), orderBy("timestamp", "desc"));
-                const querySnapshot = await getDocs(q);
+                const { data: videos, error } = await supabase
+                    .from('videos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
                 
-                if (querySnapshot.empty) {
+                if (error) throw error;
+
+                if (!videos || videos.length === 0) {
                     grid.innerHTML = `
                         <div class="col-span-full py-20 text-center bg-cardBg rounded-3xl border border-white/5">
                             <i class="fa-brands fa-youtube text-6xl text-white/5 mb-4"></i>
@@ -145,12 +148,11 @@
                 }
 
                 grid.innerHTML = '';
-                querySnapshot.forEach((doc) => {
-                    const video = doc.data();
+                videos.forEach((video) => {
                     const card = `
                         <div class="bg-cardBg rounded-3xl overflow-hidden border border-white/5 hover:border-rose-500/30 transition-all group hover:-translate-y-1 shadow-lg">
                             <div class="relative aspect-video bg-black overflow-hidden">
-                                <img src="${video.thumbnail || 'https://img.youtube.com/vi/' + video.videoId + '/maxresdefault.jpg'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <img src="${video.thumbnail || 'https://img.youtube.com/vi/' + video.video_id + '/maxresdefault.jpg'}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <div class="w-16 h-16 bg-rose-500 text-white rounded-full flex items-center justify-center text-2xl shadow-xl shadow-rose-500/20">
                                         <i class="fa-solid fa-play ml-1"></i>
@@ -173,7 +175,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="https://youtube.com/watch?v=${video.videoId}" target="_blank" class="absolute inset-0 z-10"></a>
+                            <a href="https://youtube.com/watch?v=${video.video_id}" target="_blank" class="absolute inset-0 z-10"></a>
                         </div>
                     `;
                     grid.innerHTML += card;

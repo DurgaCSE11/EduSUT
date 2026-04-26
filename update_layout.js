@@ -26,7 +26,7 @@ function injectLayout() {
     document.querySelectorAll('.guest-only, .user-profile-section, .admin-only, #nav-admin-link').forEach(el => el.classList.add('hidden'));
 
     // Sidebar and Auth Logic
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged((user) => {
         const adminLinks = document.querySelectorAll('#nav-admin-link');
         const adminOnlyElements = document.querySelectorAll('.admin-only');
         const userProfile = document.querySelectorAll('.user-profile-section');
@@ -40,7 +40,8 @@ function injectLayout() {
             const userNameEls = document.querySelectorAll('#user-name-display');
             const userRoleEls = document.querySelectorAll('#user-role-display');
             
-            const displayName = user.displayName || user.email.split('@')[0];
+            // Supabase user metadata check
+            const displayName = user.user_metadata?.full_name || user.email.split('@')[0];
             
             const updateUI = (isAdmin) => {
                 userNameEls.forEach(el => el.textContent = displayName);
@@ -56,14 +57,15 @@ function injectLayout() {
                 });
             };
 
-            // 2. Check cached admin status for instant UI update
+            // 2. Check cached admin status
             const cachedAdmin = localStorage.getItem(`isAdmin_${user.email}`) === 'true';
             updateUI(cachedAdmin);
 
-            // 3. Verify real admin status in background
-            const isAdmin = await checkIsAdmin(user.email);
-            localStorage.setItem(`isAdmin_${user.email}`, isAdmin);
-            updateUI(isAdmin);
+            // 3. Verify real admin status
+            checkIsAdmin(user.email).then(isAdmin => {
+                localStorage.setItem(`isAdmin_${user.email}`, isAdmin);
+                updateUI(isAdmin);
+            });
         } else {
             adminLinks.forEach(link => link.classList.add('hidden'));
             adminOnlyElements.forEach(el => el.classList.add('hidden'));
@@ -73,7 +75,7 @@ function injectLayout() {
     });
 
     window.handleLogout = async () => {
-        await signOut(auth);
+        await signOut();
         window.location.reload();
     };
 }

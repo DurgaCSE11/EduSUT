@@ -1,10 +1,4 @@
-import { auth, db } from './auth.js';
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { supabaseConfig } from "./config.js";
-
-// Initialize Supabase
-const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+import { supabase, auth } from './auth.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('upload-form');
@@ -12,6 +6,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        const user = await auth.getUser();
+        if (!user) return alert("Please login first");
 
         const course = document.getElementById('modal-course').value;
         const year = document.getElementById('modal-year').value;
@@ -36,14 +33,11 @@ window.addEventListener('DOMContentLoaded', () => {
             const bucketName = 'materials'; 
             const filePath = `${course}/${year}/${branch}/${fileName}`;
 
-            const { data, error } = await supabase.storage
+            const { data, error: uploadError } = await supabase.storage
                 .from(bucketName)
-                .upload(filePath, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
+                .upload(filePath, file);
 
-            if (error) throw error;
+            if (uploadError) throw uploadError;
 
             progressBar.style.width = '60%';
             statusText.textContent = "Fetching public URL...";
@@ -56,22 +50,23 @@ window.addEventListener('DOMContentLoaded', () => {
             const downloadURL = urlData.publicUrl;
 
             progressBar.style.width = '80%';
-            statusText.textContent = "Recording metadata in Firestore...";
+            statusText.textContent = "Recording metadata in Database...";
 
-            // 3. Save Metadata to Firestore
-            await addDoc(collection(db, "materials"), {
-                course,
-                year,
-                branch,
-                subject,
-                type, 
-                fileName: file.name,
-                fileUrl: downloadURL,
-                storagePath: filePath,
-                provider: 'supabase',
-                uploadedBy: auth.currentUser.email,
-                createdAt: serverTimestamp()
-            });
+            // 3. Save Metadata to Supabase Table (Replaces Firestore)
+            const { error: dbError } = await supabase
+                .from('materials')
+                .insert({
+                    course,
+                    year,
+                    branch,
+                    subject,
+                    category: type, // Using category field for type
+                    file_url: downloadURL,
+                    storage_path: filePath,
+                    uploaded_by: user.email
+                });
+
+            if (dbError) throw dbError;
 
             progressBar.style.width = '100%';
             statusText.textContent = "✅ Upload Successful!";

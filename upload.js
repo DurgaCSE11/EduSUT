@@ -1,10 +1,4 @@
-import { db, auth } from "./auth.js";
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { supabaseConfig } from "../config.js";
-
-// Initialize Supabase
-const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+import { supabase, auth } from "./auth.js";
 
 const uploadForm = document.getElementById('upload-form');
 const fileInput = document.getElementById('file-input');
@@ -56,40 +50,32 @@ function handleFileSelection(file) {
 uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    if (!selectedFile) {
-        alert("Please select a PDF file first.");
-        return;
-    }
+    const user = await auth.getUser();
+    if (!user) return alert("Please login first");
+    if (!selectedFile) return alert("Please select a PDF file first.");
 
-    const metadata = {
-        subject: document.getElementById('subject-name').value,
-        category: document.getElementById('category').value,
-        semester: document.getElementById('semester').value,
-        branch: document.getElementById('branch').value,
-        uploadedBy: auth.currentUser.email,
-        timestamp: serverTimestamp()
-    };
+    const subject = document.getElementById('subject-name').value;
+    const category = document.getElementById('category').value;
+    const semester = document.getElementById('semester').value;
+    const branch = document.getElementById('branch').value;
 
     try {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading to Supabase...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
         progressContainer.classList.remove('hidden');
         progressBar.style.width = '30%';
         progressText.textContent = '30%';
 
         // 1. Upload to Supabase Storage
         const fileName = `${Date.now()}_${selectedFile.name}`;
-        const bucketName = 'materials'; // Ensure this bucket exists in Supabase
-        const filePath = `${metadata.category}s/${fileName}`;
+        const bucketName = 'materials';
+        const filePath = `${category}s/${fileName}`;
 
-        const { data, error } = await supabase.storage
+        const { data, error: uploadError } = await supabase.storage
             .from(bucketName)
-            .upload(filePath, selectedFile, {
-                cacheControl: '3600',
-                upsert: false
-            });
+            .upload(filePath, selectedFile);
 
-        if (error) throw error;
+        if (uploadError) throw uploadError;
 
         progressBar.style.width = '70%';
         progressText.textContent = '70%';
@@ -101,19 +87,26 @@ uploadForm.addEventListener('submit', async (e) => {
             
         const downloadURL = urlData.publicUrl;
         
-        // 3. Save to Firestore
-        await addDoc(collection(db, "materials"), {
-            ...metadata,
-            fileUrl: downloadURL,
-            storagePath: filePath,
-            provider: 'supabase'
-        });
+        // 3. Save to Supabase Table (Replaces Firestore)
+        const { error: dbError } = await supabase
+            .from('materials')
+            .insert({
+                subject,
+                category,
+                semester,
+                branch,
+                file_url: downloadURL,
+                storage_path: filePath,
+                uploaded_by: user.email
+            });
+
+        if (dbError) throw dbError;
 
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
 
         setTimeout(() => {
-            alert("Success! Resource uploaded to Supabase and recorded in Firestore.");
+            alert("Success! Resource uploaded to Supabase.");
             uploadForm.reset();
             resetUI();
         }, 500);

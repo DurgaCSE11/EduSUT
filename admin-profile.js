@@ -1,10 +1,4 @@
-import { db, auth, onAuthStateChanged, doc, getDoc, setDoc } from "../auth.js";
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import { collection, addDoc, serverTimestamp, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-import { supabaseConfig } from "../config.js";
-
-// Initialize Supabase
-const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
+import { supabase, auth, onAuthStateChanged } from "../auth.js";
 
 // Modal elements
 const profileModal = document.getElementById('profile-modal');
@@ -32,7 +26,7 @@ let currentAdminEmail = null;
 let pendingVideos = [];
 
 // Initialize
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(async (user) => {
     if (user) {
         currentAdminEmail = user.email;
         loadAdminProfile();
@@ -45,21 +39,23 @@ async function loadAdminProfile() {
     if (!currentAdminEmail) return;
     
     try {
-        const docRef = doc(db, "admin_profiles", currentAdminEmail);
-        const docSnap = await getDoc(docRef);
+        const { data, error } = await supabase
+            .from('admin_profiles')
+            .select('*')
+            .eq('email', currentAdminEmail)
+            .single();
         
-        if (docSnap.exists()) {
-            const data = docSnap.data();
+        if (data) {
             profileName.value = data.name || "";
             profileBio.value = data.bio || "";
-            profilePhotoUrl.value = data.photoUrl || "";
-            profilePreview.src = data.photoUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.name || "Admin");
-            profileGithub.value = data.socials?.github || "";
-            profileLinkedin.value = data.socials?.linkedin || "";
-            profileInstagram.value = data.socials?.instagram || "";
+            profilePhotoUrl.value = data.photo_url || "";
+            profilePreview.src = data.photo_url || "https://ui-avatars.com/api/?name=" + encodeURIComponent(data.name || "Admin");
+            profileGithub.value = data.github_url || "";
+            profileLinkedin.value = data.linkedin_url || "";
+            profileInstagram.value = data.instagram_url || "";
         } else {
-            // Default values
-            profileName.value = auth.currentUser.displayName || "";
+            const user = await auth.getUser();
+            profileName.value = user.user_metadata?.full_name || user.email.split('@')[0];
         }
     } catch (error) {
         console.error("Error loading profile:", error);
@@ -73,19 +69,23 @@ btnSaveProfile?.addEventListener('click', async () => {
     btnSaveProfile.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
     
     const profileData = {
+        email: currentAdminEmail,
         name: profileName.value,
         bio: profileBio.value,
-        photoUrl: profilePhotoUrl.value,
-        socials: {
-            github: profileGithub.value,
-            linkedin: profileLinkedin.value,
-            instagram: profileInstagram.value
-        },
-        updatedAt: serverTimestamp()
+        photo_url: profilePhotoUrl.value,
+        github_url: profileGithub.value,
+        linkedin_url: profileLinkedin.value,
+        instagram_url: profileInstagram.value,
+        updated_at: new Date().toISOString()
     };
     
     try {
-        await setDoc(doc(db, "admin_profiles", currentAdminEmail), profileData);
+        const { error } = await supabase
+            .from('admin_profiles')
+            .upsert(profileData);
+
+        if (error) throw error;
+
         alert("Profile updated successfully!");
         closeModals();
     } catch (error) {
@@ -112,7 +112,6 @@ profilePhotoInput?.addEventListener('change', async (e) => {
         return;
     }
 
-    const originalText = document.querySelector('label[for="profile-photo-input"]')?.textContent || "Change Photo";
     const label = e.target.parentElement;
     
     try {
@@ -163,25 +162,19 @@ btnScrapeVideo?.addEventListener('click', async () => {
     
     setTimeout(() => {
         if (videoId) {
-            // Direct Link Scrape
             const video = {
-                videoId: videoId,
-                title: "Loading video title...", // In a real app, we'd fetch this from oEmbed or Data API
+                video_id: videoId,
+                title: "Video Solution for " + queryStr.split('/').pop(),
                 thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
                 author: profileName.value || "Admin",
-                subject: "Computer Science", // Default
+                subject: "Computer Science",
                 duration: "12:45"
             };
-            
-            // Attempt to get title from oEmbed proxy if possible, or just mock it
-            video.title = "Video Solution for " + queryStr.split('/').pop();
-            
             displayResults([video]);
         } else {
-            // Search Scrape Simulation
             const mockResults = [
                 {
-                    videoId: "dQw4w9WgXcQ",
+                    video_id: "dQw4w9WgXcQ",
                     title: "Advanced Data Structures - Part 1",
                     thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
                     author: "VSSUT Senior",
@@ -189,7 +182,7 @@ btnScrapeVideo?.addEventListener('click', async () => {
                     duration: "15:20"
                 },
                 {
-                    videoId: "y6120QOlsfU",
+                    video_id: "y6120QOlsfU",
                     title: "Operating Systems: Process Synchronization",
                     thumbnail: "https://img.youtube.com/vi/y6120QOlsfU/mqdefault.jpg",
                     author: "Academic Cell",
@@ -197,7 +190,7 @@ btnScrapeVideo?.addEventListener('click', async () => {
                     duration: "08:45"
                 },
                 {
-                    videoId: "7thS8S6Z5vY",
+                    video_id: "7thS8S6Z5vY",
                     title: "Database Management Systems: Normalization",
                     thumbnail: "https://img.youtube.com/vi/7thS8S6Z5vY/mqdefault.jpg",
                     author: "EduSUT Mentor",
@@ -205,8 +198,6 @@ btnScrapeVideo?.addEventListener('click', async () => {
                     duration: "22:10"
                 }
             ];
-            
-            // Filter by query if needed, or just return them
             displayResults(mockResults);
         }
         
@@ -248,13 +239,15 @@ btnSaveVideos?.addEventListener('click', async () => {
     btnSaveVideos.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Adding...';
     
     try {
-        for (const video of pendingVideos) {
-            await addDoc(collection(db, "videos"), {
-                ...video,
-                timestamp: serverTimestamp(),
-                addedBy: currentAdminEmail
-            });
-        }
+        const { error } = await supabase
+            .from('videos')
+            .insert(pendingVideos.map(v => ({
+                ...v,
+                added_by: currentAdminEmail
+            })));
+
+        if (error) throw error;
+
         alert("Videos added to gallery!");
         closeModals();
         videoResultsGrid.innerHTML = '';

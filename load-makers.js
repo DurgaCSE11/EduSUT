@@ -1,5 +1,4 @@
-import { db, doc, getDoc } from "../auth.js";
-import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { supabase } from "../auth.js";
 
 async function loadMakers() {
     const adminName = document.getElementById('maker-admin-name');
@@ -10,19 +9,19 @@ async function loadMakers() {
     const adminInstagram = document.getElementById('maker-admin-instagram');
 
     try {
-        // We look for any admin profile. For now, let's just pick the first one or a specific one.
-        // Usually, there's only one main admin who edits their bio.
-        const q = query(collection(db, "admin_profiles"), limit(1));
-        const querySnapshot = await getDocs(q);
+        const { data, error } = await supabase
+            .from('admin_profiles')
+            .select('*')
+            .limit(1)
+            .maybeSingle();
         
-        if (!querySnapshot.empty) {
-            const data = querySnapshot.docs[0].data();
+        if (data) {
             if (adminName) adminName.textContent = data.name || adminName.textContent;
             if (adminBio) adminBio.textContent = data.bio || adminBio.textContent;
-            if (adminPhoto && data.photoUrl) adminPhoto.src = data.photoUrl;
-            if (adminGithub && data.socials?.github) adminGithub.href = data.socials.github;
-            if (adminLinkedin && data.socials?.linkedin) adminLinkedin.href = data.socials.linkedin;
-            if (adminInstagram && data.socials?.instagram) adminInstagram.href = data.socials.instagram;
+            if (adminPhoto && data.photo_url) adminPhoto.src = data.photo_url;
+            if (adminGithub && data.github_url) adminGithub.href = data.github_url;
+            if (adminLinkedin && data.linkedin_url) adminLinkedin.href = data.linkedin_url;
+            if (adminInstagram && data.instagram_url) adminInstagram.href = data.instagram_url;
         }
     } catch (error) {
         console.error("Error loading makers:", error);

@@ -224,7 +224,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto">
 
                     <!-- Maker 1: Durga -->
-                    <div
+                    <div id="maker-admin-card"
                         class="bg-cardBg rounded-3xl p-8 border border-white/5 flex flex-col items-center text-center shadow-lg hover:-translate-y-2 transition-all duration-300 hover:shadow-purple-500/10 hover:border-purple-500/30 relative overflow-hidden group">
                         <div
                             class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:bg-purple-500/20">
@@ -232,25 +232,25 @@
 
                         <div
                             class="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-6 border-4 border-cardBg outline outline-2 outline-purple-500/30 shadow-xl relative z-10">
-                            <img src="durga.jpeg"
+                            <img id="maker-admin-photo" src="durga.jpeg"
                                 onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=Durga+Prasad+Mahapatra&background=8b5cf6&color=fff&size=256'"
                                 alt="Durga Prasad Mahapatra" class="w-full h-full object-cover">
                         </div>
-                        <h4 class="text-2xl font-bold text-white mb-1 relative z-10">Durga Prasad Mahapatra</h4>
+                        <h4 id="maker-admin-name" class="text-2xl font-bold text-white mb-1 relative z-10">Durga Prasad Mahapatra</h4>
                         <p class="text-sm text-purple-400 font-medium mb-4 relative z-10 uppercase tracking-wider">
                             Co-Creator & Developer</p>
-                        <p class="text-slate-400 text-sm md:text-base leading-relaxed relative z-10">Dedicated to
+                        <p id="maker-admin-bio" class="text-slate-400 text-sm md:text-base leading-relaxed relative z-10">Dedicated to
                             integrating AI solutions and optimizing educational resources into a single cohesive, smart
                             platform.</p>
 
                         <div class="flex gap-5 mt-8 relative z-10">
-                            <a href="#"
+                            <a id="maker-admin-github" href="#"
                                 class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-purple-500 hover:text-white transition-all"><i
                                     class="fa-brands fa-github text-lg"></i></a>
-                            <a href="#"
+                            <a id="maker-admin-linkedin" href="#"
                                 class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-[#0077b5] hover:text-white transition-all"><i
                                     class="fa-brands fa-linkedin-in text-lg"></i></a>
-                            <a href="#"
+                            <a id="maker-admin-instagram" href="#"
                                 class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:bg-[#E1306C] hover:text-white transition-all"><i
                                     class="fa-brands fa-instagram text-lg"></i></a>
                         </div>
@@ -366,6 +366,7 @@
 
     <script src="app.js"></script>
     <script src="update_layout.js" type="module"></script>
+    <script src="js/load-makers.js" type="module"></script>
     <script src="footer.js"></script>
 </body>
 

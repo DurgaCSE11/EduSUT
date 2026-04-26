@@ -84,13 +84,69 @@ function injectFooter() {
         </div>
     </footer>
 
-    <!-- Chat Toggle Button (Floating) -->
-    <button class="fixed bottom-6 right-6 w-14 h-14 bg-pink-500 text-white rounded-full shadow-2xl shadow-pink-500/30 flex items-center justify-center hover:scale-110 transition-transform z-50">
-        <i class="fa-solid fa-comment-dots text-xl"></i>
-    </button>
+    <!-- WhatsApp Floating Action Button -->
+    <a href="#" 
+       onclick="openWhatsappModal(event)"
+       class="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] text-white rounded-full shadow-2xl shadow-[#25D366]/30 flex items-center justify-center hover:scale-110 transition-all z-50 group hover:shadow-[#25D366]/50"
+       title="Join Doubt Solving Group">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+        <span class="absolute right-16 bg-white/10 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10 pointer-events-none">
+            Join Doubt Group
+        </span>
+    </a>
+
+    <!-- WhatsApp Redirect Modal (Global) -->
+    <div id="whatsapp-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-6 bg-sidebar/95 backdrop-blur-md">
+        <div class="bg-cardBg rounded-3xl p-10 border border-white/5 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-[#25D366] opacity-50"></div>
+            
+            <div class="w-20 h-20 bg-[#25D366]/10 text-[#25D366] rounded-2xl flex items-center justify-center text-4xl mx-auto mb-8 animate-bounce">
+                <i class="fa-brands fa-whatsapp"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-white mb-4">Redirecting to Community</h2>
+            <p class="text-slate-400 mb-8 leading-relaxed text-sm">You are joining the <strong>EduSUT Doubt Solving Section</strong> on WhatsApp. This community is moderated by seniors to help you with your academic queries.</p>
+            
+            <div class="flex flex-col gap-3">
+                <a href="https://chat.whatsapp.com/GZp8n6jG6rA3p8N6jG6rA3" target="_blank" rel="noopener noreferrer"
+                    class="bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-2xl font-bold transition-all shadow-lg shadow-[#25D366]/20 flex items-center justify-center gap-2">
+                    Open WhatsApp Group <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </a>
+                <button onclick="closeWhatsappModal()" class="py-3 text-slate-500 hover:text-white transition-colors text-sm font-medium">
+                    Wait, take me back
+                </button>
+            </div>
+        </div>
+    </div>
     `;
 
     mainElement.insertAdjacentHTML('beforeend', footerHtml);
+
+    // Global Modal Functions
+    window.openWhatsappModal = function(e) {
+        if (e) e.preventDefault();
+        const modal = document.getElementById('whatsapp-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeWhatsappModal = function() {
+        const modal = document.getElementById('whatsapp-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Close modal if clicking background
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('whatsapp-modal');
+        if (modal && e.target === modal) {
+            window.closeWhatsappModal();
+        }
+    });
 }
 
 // Initialize

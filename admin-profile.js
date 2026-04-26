@@ -1,5 +1,10 @@
 import { db, auth, onAuthStateChanged, doc, getDoc, setDoc } from "../auth.js";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { collection, addDoc, serverTimestamp, query, getDocs, where } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { supabaseConfig } from "../config.js";
+
+// Initialize Supabase
+const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
 
 // Modal elements
 const profileModal = document.getElementById('profile-modal');
@@ -14,6 +19,7 @@ const profileGithub = document.getElementById('profile-github');
 const profileLinkedin = document.getElementById('profile-linkedin');
 const profileInstagram = document.getElementById('profile-instagram');
 const btnSaveProfile = document.getElementById('btn-save-profile');
+const profilePhotoInput = document.getElementById('profile-photo-input');
 
 // Video manager elements
 const youtubeSearchQuery = document.getElementById('youtube-search-query');
@@ -94,6 +100,46 @@ btnSaveProfile?.addEventListener('click', async () => {
 profilePhotoUrl?.addEventListener('input', () => {
     if (profilePhotoUrl.value) {
         profilePreview.src = profilePhotoUrl.value;
+    }
+});
+
+profilePhotoInput?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+    }
+
+    const originalText = document.querySelector('label[for="profile-photo-input"]')?.textContent || "Change Photo";
+    const label = e.target.parentElement;
+    
+    try {
+        label.classList.add('opacity-50', 'pointer-events-none');
+        label.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Uploading...';
+
+        const fileName = `admin_${Date.now()}_${file.name}`;
+        const { data, error } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+
+        profilePhotoUrl.value = urlData.publicUrl;
+        profilePreview.src = urlData.publicUrl;
+        alert('Photo uploaded successfully!');
+
+    } catch (error) {
+        console.error('Photo upload failed:', error);
+        alert('Upload failed: ' + error.message);
+    } finally {
+        label.classList.remove('opacity-50', 'pointer-events-none');
+        label.innerHTML = 'Change Photo';
     }
 });
 

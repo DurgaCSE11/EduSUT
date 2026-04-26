@@ -1,8 +1,10 @@
 import { db, auth } from "./auth.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-storage.js";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { supabaseConfig } from "../config.js";
 
-const storage = getStorage();
+// Initialize Supabase
+const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey);
 
 const uploadForm = document.getElementById('upload-form');
 const fileInput = document.getElementById('file-input');
@@ -70,45 +72,55 @@ uploadForm.addEventListener('submit', async (e) => {
 
     try {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading to Supabase...';
         progressContainer.classList.remove('hidden');
+        progressBar.style.width = '30%';
+        progressText.textContent = '30%';
 
-        // 1. Upload to Storage
-        const storagePath = `materials/${metadata.category}s/${Date.now()}_${selectedFile.name}`;
-        const storageRef = ref(storage, storagePath);
-        const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+        // 1. Upload to Supabase Storage
+        const fileName = `${Date.now()}_${selectedFile.name}`;
+        const bucketName = 'materials'; // Ensure this bucket exists in Supabase
+        const filePath = `${metadata.category}s/${fileName}`;
 
-        uploadTask.on('state_changed', 
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                progressBar.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-            }, 
-            (error) => {
-                console.error("Upload error:", error);
-                alert("Upload failed: " + error.message);
-                resetUI();
-            }, 
-            async () => {
-                // 2. Get Download URL
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                
-                // 3. Save to Firestore
-                await addDoc(collection(db, "materials"), {
-                    ...metadata,
-                    fileUrl: downloadURL,
-                    storagePath: storagePath
-                });
+        const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(filePath, selectedFile, {
+                cacheControl: '3600',
+                upsert: false
+            });
 
-                alert("Success! Resource uploaded and recorded.");
-                uploadForm.reset();
-                resetUI();
-            }
-        );
+        if (error) throw error;
+
+        progressBar.style.width = '70%';
+        progressText.textContent = '70%';
+
+        // 2. Get Public URL
+        const { data: urlData } = supabase.storage
+            .from(bucketName)
+            .getPublicUrl(filePath);
+            
+        const downloadURL = urlData.publicUrl;
+        
+        // 3. Save to Firestore
+        await addDoc(collection(db, "materials"), {
+            ...metadata,
+            fileUrl: downloadURL,
+            storagePath: filePath,
+            provider: 'supabase'
+        });
+
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+
+        setTimeout(() => {
+            alert("Success! Resource uploaded to Supabase and recorded in Firestore.");
+            uploadForm.reset();
+            resetUI();
+        }, 500);
 
     } catch (error) {
         console.error("Error during upload process:", error);
-        alert("An error occurred. Check console for details.");
+        alert("Upload failed: " + (error.message || "Unknown error"));
         resetUI();
     }
 });

@@ -7,7 +7,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const passwordInput = document.getElementById('login-password');
 
     if (googleBtn) {
-        googleBtn.addEventListener('click', async () => {
+        googleBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             try {
                 const result = await signInWithPopup(auth, provider);
                 if (result.user) {

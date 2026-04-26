@@ -96,7 +96,9 @@ async function signInWithPopup(authObj, providerObj) {
 
         if (data?.url) {
             console.log("EduSUT Auth: Manual redirecting to:", data.url);
-            window.location.href = data.url;
+            window.location.assign(data.url);
+            // Return a promise that never resolves to prevent caller from navigating elsewhere
+            return new Promise(() => {}); 
         } else {
             console.error("EduSUT Auth: No redirect URL returned from Supabase");
             alert("Login Error: No redirect URL returned.");

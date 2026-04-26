@@ -83,7 +83,8 @@ async function signInWithPopup(authObj, providerObj) {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/index.html'
+                redirectTo: window.location.origin + '/index.html',
+                skipBrowserRedirect: true
             }
         });
         
@@ -92,8 +93,15 @@ async function signInWithPopup(authObj, providerObj) {
             alert("Login Error: " + error.message);
             throw error;
         }
+
+        if (data?.url) {
+            console.log("EduSUT Auth: Manual redirecting to:", data.url);
+            window.location.href = data.url;
+        } else {
+            console.error("EduSUT Auth: No redirect URL returned from Supabase");
+            alert("Login Error: No redirect URL returned.");
+        }
         
-        console.log("EduSUT Auth: Redirect call successful, browser should navigate now...");
         return { user: data?.user }; 
     } catch (err) {
         console.error("EduSUT Auth: Critical OAuth Exception:", err);

@@ -95,9 +95,31 @@ async function signInWithPopup(authObj, providerObj) {
         }
 
         if (data?.url) {
-            console.log("EduSUT Auth: Manual redirecting to:", data.url);
-            window.location.assign(data.url);
-            // Return a promise that never resolves to prevent caller from navigating elsewhere
+            console.log("EduSUT Auth: Forcing redirect via programmatic link click...");
+            
+            // 1. Create a physical link and click it (harder for browsers to block)
+            const link = document.createElement('a');
+            link.href = data.url;
+            document.body.appendChild(link);
+            link.click();
+
+            // 2. Fallback UI in case the browser still blocks it
+            const fallback = document.createElement('div');
+            fallback.id = 'auth-fallback-ui';
+            fallback.innerHTML = `
+                <div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10000;background:#6366f1;color:white;padding:12px 24px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.3);text-align:center;font-family:sans-serif;">
+                    Redirecting to Google... 
+                    <a href="${data.url}" style="color:white;text-decoration:underline;font-weight:bold;margin-left:10px;">Click here if nothing happens</a>
+                </div>
+            `;
+            document.body.appendChild(fallback);
+
+            // 3. Last resort direct navigation after a tiny delay
+            setTimeout(() => { 
+                console.log("EduSUT Auth: Last resort navigation trigger...");
+                window.location.assign(data.url); 
+            }, 500);
+            
             return new Promise(() => {}); 
         } else {
             console.error("EduSUT Auth: No redirect URL returned from Supabase");

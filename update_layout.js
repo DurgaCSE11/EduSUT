@@ -33,29 +33,37 @@ function injectLayout() {
         const guestLinks = document.querySelectorAll('.guest-only');
         
         if (user) {
-            const isAdmin = await checkIsAdmin(user.email);
-            adminLinks.forEach(link => {
-                if (isAdmin) link.classList.remove('hidden');
-                else link.classList.add('hidden');
-            });
-            adminOnlyElements.forEach(el => {
-                if (isAdmin) el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            });
-            
+            // 1. Show user profile IMMEDIATELY
             userProfile.forEach(el => el.classList.remove('hidden'));
             guestLinks.forEach(el => el.classList.add('hidden'));
+
+            const userNameEls = document.querySelectorAll('#user-name-display');
+            const userRoleEls = document.querySelectorAll('#user-role-display');
             
-            const userNameEl = document.getElementById('user-name-display');
-            const userRoleEl = document.getElementById('user-role-display');
+            const displayName = user.displayName || user.email.split('@')[0];
             
-            if (isAdmin) {
-                if (userNameEl) userNameEl.textContent = "Moderator";
-                if (userRoleEl) userRoleEl.textContent = "EduSUT Admin";
-            } else {
-                if (userNameEl) userNameEl.textContent = user.displayName || user.email.split('@')[0];
-                if (userRoleEl) userRoleEl.textContent = "VSSUT Student";
-            }
+            const updateUI = (isAdmin) => {
+                userNameEls.forEach(el => el.textContent = displayName);
+                userRoleEls.forEach(el => el.textContent = isAdmin ? "(Admin)" : "(Student)");
+                
+                adminLinks.forEach(link => {
+                    if (isAdmin) link.classList.remove('hidden');
+                    else link.classList.add('hidden');
+                });
+                adminOnlyElements.forEach(el => {
+                    if (isAdmin) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                });
+            };
+
+            // 2. Check cached admin status for instant UI update
+            const cachedAdmin = localStorage.getItem(`isAdmin_${user.email}`) === 'true';
+            updateUI(cachedAdmin);
+
+            // 3. Verify real admin status in background
+            const isAdmin = await checkIsAdmin(user.email);
+            localStorage.setItem(`isAdmin_${user.email}`, isAdmin);
+            updateUI(isAdmin);
         } else {
             adminLinks.forEach(link => link.classList.add('hidden'));
             adminOnlyElements.forEach(el => el.classList.add('hidden'));

@@ -78,18 +78,27 @@ async function signOut(authObj) {
 const provider = { provider: 'google' };
 
 async function signInWithPopup(authObj, providerObj) {
-    console.log("EduSUT Auth: Starting Google Sign-In (Redirect flow)...");
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin + '/index.html'
+    console.log("EduSUT Auth: Initiating OAuth redirect to Google...");
+    try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/index.html'
+            }
+        });
+        
+        if (error) {
+            console.error("EduSUT Auth: OAuth Error Details:", error.message, error);
+            alert("Login Error: " + error.message);
+            throw error;
         }
-    });
-    if (error) {
-        console.error("EduSUT Auth: OAuth error:", error);
-        throw error;
+        
+        console.log("EduSUT Auth: Redirect call successful, browser should navigate now...");
+        return { user: data?.user }; 
+    } catch (err) {
+        console.error("EduSUT Auth: Critical OAuth Exception:", err);
+        throw err;
     }
-    return { user: data?.user }; 
 }
 
 async function signInWithEmailAndPassword(authObj, email, password) {

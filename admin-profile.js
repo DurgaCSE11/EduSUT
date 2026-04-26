@@ -1,4 +1,4 @@
-import { supabase, auth, onAuthStateChanged } from "../auth.js";
+import { supabase, auth, onAuthStateChanged } from "./auth.js";
 
 // Modal elements
 const profileModal = document.getElementById('profile-modal');

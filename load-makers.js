@@ -1,4 +1,4 @@
-import { supabase } from "../auth.js";
+import { supabase } from "./auth.js";
 
 async function loadMakers() {
     const adminName = document.getElementById('maker-admin-name');
